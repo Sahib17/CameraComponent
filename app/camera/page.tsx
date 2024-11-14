@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface Stream {
   getTracks: () => MediaStreamTrack[];
@@ -23,8 +24,8 @@ const GalleryIcon = () => (
 const CameraComponent = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [galleryImage, setGalleryImage] = useState<string | null>(null);
+  const [imageSrc, setImageSrc] = useState<string>('');  // Changed from null to empty string
+  const [galleryImage, setGalleryImage] = useState<string>('');  // Changed from null to empty string
   const [isImageCaptured, setIsImageCaptured] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [cameraStream, setCameraStream] = useState<Stream | null>(null);
@@ -50,13 +51,14 @@ const CameraComponent = () => {
 
   useEffect(() => {
     startCamera();
+    // Cleanup function
     return () => {
       if (cameraStream) {
         const tracks = cameraStream.getTracks();
         tracks.forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, []);  // Removed cameraStream from dependencies as it's cleanup only
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -92,8 +94,8 @@ const CameraComponent = () => {
   };
 
   const handleNewImage = () => {
-    setImageSrc(null);
-    setGalleryImage(null);
+    setImageSrc('');  // Changed from null to empty string
+    setGalleryImage('');  // Changed from null to empty string
     setIsImageCaptured(false);
     setIsVideoPlaying(true);
     if (fileInputRef.current) {
@@ -104,9 +106,7 @@ const CameraComponent = () => {
 
   return (
     <div className="relative h-screen bg-black">
-      {/* Main Camera View */}
       <div className="relative h-full">
-        {/* Camera Viewfinder */}
         <div className="absolute inset-0 overflow-hidden">
           {!imageSrc && !galleryImage && !isImageCaptured && isVideoPlaying && (
             <video
@@ -119,19 +119,23 @@ const CameraComponent = () => {
 
           {(imageSrc || galleryImage) && (
             <div className="relative h-full">
-              <img
-                src={imageSrc || galleryImage}
-                alt="Captured"
-                className="w-full h-full object-cover"
-              />
+              {/* Using Next.js Image component */}
+              <div className="relative w-full h-full">
+                <Image
+                  src={imageSrc || galleryImage}
+                  alt="Captured"
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority
+                />
+              </div>
             </div>
           )}
         </div>
 
-        {/* Camera Controls */}
         <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
           <div className="flex items-center justify-between max-w-md mx-auto">
-            {/* Gallery Button */}
             <label 
               htmlFor="gallery-upload" 
               className="w-14 h-14 rounded-full bg-white/10 backdrop-blur flex items-center justify-center cursor-pointer hover:bg-white/20 transition-all duration-300 active:scale-95"
@@ -139,7 +143,6 @@ const CameraComponent = () => {
               <GalleryIcon />
             </label>
 
-            {/* Shutter Button */}
             {!isImageCaptured && isVideoPlaying && (
               <button
                 onClick={captureImage}
@@ -151,12 +154,10 @@ const CameraComponent = () => {
               </button>
             )}
 
-            {/* Spacer for layout balance */}
             <div className="w-14 h-14" />
           </div>
         </div>
 
-        {/* New Image Button */}
         {isImageCaptured && (
           <div className="absolute bottom-8 inset-x-0 flex justify-center">
             <button
@@ -168,7 +169,6 @@ const CameraComponent = () => {
           </div>
         )}
 
-        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
