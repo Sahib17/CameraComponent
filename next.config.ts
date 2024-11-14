@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    dangerouslyAllowSVG: true,
+    domains: ['localhost'],
     remotePatterns: [
       {
-        protocol: 'data',
-        hostname: '*',
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },

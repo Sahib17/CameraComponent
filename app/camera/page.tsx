@@ -1,7 +1,6 @@
 "use client"
 
 import { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
 
 interface Stream {
   getTracks: () => MediaStreamTrack[];
@@ -24,8 +23,8 @@ const GalleryIcon = () => (
 const CameraComponent = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageSrc, setImageSrc] = useState<string>('');  // Changed from null to empty string
-  const [galleryImage, setGalleryImage] = useState<string>('');  // Changed from null to empty string
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const [galleryImage, setGalleryImage] = useState<string>('');
   const [isImageCaptured, setIsImageCaptured] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [cameraStream, setCameraStream] = useState<Stream | null>(null);
@@ -51,14 +50,13 @@ const CameraComponent = () => {
 
   useEffect(() => {
     startCamera();
-    // Cleanup function
     return () => {
       if (cameraStream) {
         const tracks = cameraStream.getTracks();
         tracks.forEach((track) => track.stop());
       }
     };
-  }, []);  // Removed cameraStream from dependencies as it's cleanup only
+  }, []);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -94,8 +92,8 @@ const CameraComponent = () => {
   };
 
   const handleNewImage = () => {
-    setImageSrc('');  // Changed from null to empty string
-    setGalleryImage('');  // Changed from null to empty string
+    setImageSrc('');
+    setGalleryImage('');
     setIsImageCaptured(false);
     setIsVideoPlaying(true);
     if (fileInputRef.current) {
@@ -119,17 +117,11 @@ const CameraComponent = () => {
 
           {(imageSrc || galleryImage) && (
             <div className="relative h-full">
-              {/* Using Next.js Image component */}
-              <div className="relative w-full h-full">
-                <Image
-                  src={imageSrc || galleryImage}
-                  alt="Captured"
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  priority
-                />
-              </div>
+              {/* Using regular img tag for data URLs */}
+              <div 
+                className="relative w-full h-full bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${imageSrc || galleryImage})` }}
+              />
             </div>
           )}
         </div>
